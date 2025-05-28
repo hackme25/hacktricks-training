@@ -1,0 +1,32 @@
+name: "AWS Testing"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  aws:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::116981796476:role/sts-lab-2-target
+          role-session-name: OIDCSession
+
+      - name: Show AWS identity
+        run: aws sts get-caller-identity
+        shell: bash
+
+      - name: Get flag from Secrets Manager
+        run: aws secretsmanager get-secret-value --secret-id flag_sts_lab_2 --region us-east-1
+        shell: bash
